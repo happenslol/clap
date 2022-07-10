@@ -5,6 +5,8 @@ use std::io::Write;
 
 /// Complete commands within bash
 pub mod bash;
+/// Complete commands within zsh
+pub mod zsh;
 
 #[derive(clap::Subcommand)]
 #[clap(hide = true)]
@@ -20,6 +22,10 @@ pub enum CompleteCommand {
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 pub struct CompleteArgs {
+    /// Shell for which to complete or write completion-registration
+    #[clap(long, value_parser)]
+    shell: Option<Shell>,
+
     /// Path to write completion-registration to
     #[clap(long, required = true, value_parser)]
     register: Option<std::path::PathBuf>,
@@ -62,6 +68,13 @@ pub struct CompleteArgs {
     comp_words: Vec<OsString>,
 }
 
+#[derive(Debug, Copy, Clone, clap::ArgEnum)]
+#[allow(missing_docs)]
+pub enum Shell {
+    Bash,
+    Zsh,
+}
+
 impl CompleteCommand {
     /// Process the completion request
     pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
@@ -73,16 +86,32 @@ impl CompleteCommand {
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::Result<()> {
         debug!("CompleteCommand::try_complete: {:?}", self);
         let CompleteCommand::Complete(args) = self;
+        let shell = args.shell.unwrap_or(Shell::Bash);
+
         if let Some(out_path) = args.register.as_deref() {
             let mut buf = Vec::new();
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or(cmd.get_name());
-            bash::register(name, [bin], bin, &bash::Behavior::default(), &mut buf)?;
+
+            match shell {
+                Shell::Bash => {
+                    bash::register(name, [bin], bin, &bash::Behavior::default(), &mut buf)?
+                }
+                Shell::Zsh => {
+                    zsh::register(name, [bin], bin, &mut buf)?
+                }
+            };
+
             if out_path == std::path::Path::new("-") {
                 std::io::stdout().write(&buf)?;
             } else {
                 if out_path.is_dir() {
-                    let out_path = out_path.join(bash::file_name(name));
+                    let filename = match shell {
+                        Shell::Bash => bash::file_name(name),
+                        Shell::Zsh => zsh::file_name(name),
+                    };
+
+                    let out_path = out_path.join(filename);
                     std::fs::write(out_path, buf)?;
                 } else {
                     std::fs::write(out_path, buf)?;
