@@ -16,7 +16,7 @@ fn command() -> clap::Command<'static> {
                 .value_parser(["json", "yaml", "toml"]),
         )
         .args_conflicts_with_subcommands(true);
-    let cmd = clap_complete::dynamic::bash::CompleteCommand::augment_subcommands(cmd);
+    let cmd = clap_complete::dynamic::CompleteCommand::augment_subcommands(cmd);
     cmd
 }
 
@@ -24,7 +24,7 @@ fn main() {
     let cmd = command();
     let matches = cmd.get_matches();
     if let Ok(completions) =
-        clap_complete::dynamic::bash::CompleteCommand::from_arg_matches(&matches)
+        clap_complete::dynamic::CompleteCommand::from_arg_matches(&matches)
     {
         completions.complete(&mut command());
     } else {
