@@ -13,19 +13,16 @@ fn suggest_subcommand_subset() {
     let args = IntoIterator::into_iter(args)
         .map(|s| std::ffi::OsString::from(s))
         .collect::<Vec<_>>();
-    let comp_type = clap_complete::dynamic::bash::CompType::default();
-    let trailing_space = true;
     let current_dir = None;
 
-    let completions = clap_complete::dynamic::bash::complete(
+    let completions = clap_complete::dynamic::complete::get(
         &mut cmd,
         args,
         arg_index,
-        comp_type,
-        trailing_space,
         current_dir,
     )
     .unwrap();
+
     let completions = completions
         .into_iter()
         .map(|s| s.to_string_lossy().into_owned())
@@ -59,19 +56,16 @@ fn suggest_long_flag_subset() {
     let args = IntoIterator::into_iter(args)
         .map(|s| std::ffi::OsString::from(s))
         .collect::<Vec<_>>();
-    let comp_type = clap_complete::dynamic::bash::CompType::default();
-    let trailing_space = true;
     let current_dir = None;
 
-    let completions = clap_complete::dynamic::bash::complete(
+    let completions = clap_complete::dynamic::complete::get(
         &mut cmd,
         args,
         arg_index,
-        comp_type,
-        trailing_space,
         current_dir,
     )
     .unwrap();
+
     let completions = completions
         .into_iter()
         .map(|s| s.to_string_lossy().into_owned())
@@ -94,19 +88,16 @@ fn suggest_possible_value_subset() {
     let args = IntoIterator::into_iter(args)
         .map(|s| std::ffi::OsString::from(s))
         .collect::<Vec<_>>();
-    let comp_type = clap_complete::dynamic::bash::CompType::default();
-    let trailing_space = true;
     let current_dir = None;
 
-    let completions = clap_complete::dynamic::bash::complete(
+    let completions = clap_complete::dynamic::complete::get(
         &mut cmd,
         args,
         arg_index,
-        comp_type,
-        trailing_space,
         current_dir,
     )
     .unwrap();
+
     let completions = completions
         .into_iter()
         .map(|s| s.to_string_lossy().into_owned())
@@ -128,19 +119,16 @@ fn suggest_additional_short_flags() {
     let args = IntoIterator::into_iter(args)
         .map(|s| std::ffi::OsString::from(s))
         .collect::<Vec<_>>();
-    let comp_type = clap_complete::dynamic::bash::CompType::default();
-    let trailing_space = true;
     let current_dir = None;
 
-    let completions = clap_complete::dynamic::bash::complete(
+    let completions = clap_complete::dynamic::complete::get(
         &mut cmd,
         args,
         arg_index,
-        comp_type,
-        trailing_space,
         current_dir,
     )
     .unwrap();
+
     let completions = completions
         .into_iter()
         .map(|s| s.to_string_lossy().into_owned())

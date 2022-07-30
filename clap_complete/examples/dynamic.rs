@@ -23,10 +23,11 @@ fn command() -> clap::Command<'static> {
 fn main() {
     let cmd = command();
     let matches = cmd.get_matches();
+
     if let Ok(completions) =
         clap_complete::dynamic::CompleteCommand::from_arg_matches(&matches)
     {
-        completions.complete(&mut command());
+        completions.run(&mut command());
     } else {
         println!("{:#?}", matches);
     }

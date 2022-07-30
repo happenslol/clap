@@ -2,6 +2,11 @@ use std::io::Write;
 
 use unicode_xid::UnicodeXID;
 
+#[derive(Clone, Debug, clap::Args)]
+#[allow(missing_docs)]
+pub struct CompleteArgs {
+}
+
 /// Generate code to register the dynamic completion
 pub fn register(
     name: &str,
@@ -29,31 +34,31 @@ pub fn register(
     // Adapted from github.com/spf13/cobra
     // TODO: Implement no-space flag
     let script = r#"
-#compdef NAME
-# zsh completion for NAME -*- shell-script -*-
-__NAME_debug() {
+#compdef _clap_complete_NAME NAME
+# zsh completion for NAME
+__clap_complete_NAME_debug() {
     local file="$BASH_COMP_DEBUG_FILE"
     if [[ -n ${file} ]]; then
         echo "$*" >> "${file}"
     fi
 }
 
-_NAME() {
+_clap_complete_NAME() {
     local lastParam lastChar flagPrefix compCmd compResult compLine lastComp
     local -a completions
 
-    __NAME_debug "\n========= starting completion logic =========="
-    __NAME_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
+    __clap_complete_NAME_debug "\n========= starting completion logic =========="
+    __clap_complete_NAME_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
 
     # The user could have moved the cursor backwards on the command-line.
     # We need to trigger completion from the $CURRENT location, so we need
     # to truncate the command-line ($words) up to the $CURRENT location.
     # (We cannot use $CURSOR as its value does not work when a command is an alias.)
     words=("${=words[1,CURRENT]}")
-    __NAME_debug "Truncated words[*]: ${words[*]},"
+    __clap_complete_NAME_debug "Truncated words[*]: ${words[*]},"
     lastParam=${words[-1]}
     lastChar=${lastParam[-1]}
-    __NAME_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
+    __clap_complete_NAME_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
 
     # For zsh, when completing a flag with an = (e.g., NAME -n=<TAB>)
     # completions must be prefixed with the flag
@@ -64,22 +69,16 @@ _NAME() {
     fi
 
     # Prepare the command to obtain completions
-    compCmd="${words[1]} COMPLETER ${words[2,-1]}"
-    if [ "${lastChar}" = "" ]; then
-        # If the last parameter is complete (there is a space following it)
-        # We add an extra empty parameter so we can indicate this to the go completion code.
-        __NAME_debug "Adding extra empty parameter"
-        compCmd="${compCmd} \"\""
-    fi
+    compCmd="COMPLETER complete --type 63 --index 1 --no-space -- ${words[1,-1]}"
 
-    __NAME_debug "About to call: eval ${compCmd}"
+    __clap_complete_NAME_debug "Calling completion command: eval ${compCmd}"
 
     # Use eval to handle any environment variables and such
     compResult=$(eval ${compCmd} 2>/dev/null)
-    __NAME_debug "completion output: ${compResult}"
+    __clap_complete_NAME_debug "Completion command output: ${compResult}"
 
-    __NAME_debug "completions: ${compResult}"
-    __NAME_debug "flagPrefix: ${flagPrefix}"
+    __clap_complete_NAME_debug "completions: ${compResult}"
+    __clap_complete_NAME_debug "flagPrefix: ${flagPrefix}"
 
     while IFS='\n' read -r compLine; do
         if [ -n "$compLine" ]; then
@@ -90,24 +89,24 @@ _NAME() {
             compLine=${compLine//:/\\:}
             local tab="$(printf '\t')"
             compLine=${compLine//$tab/:}
-            __NAME_debug "Adding completion: ${compLine}"
+            __clap_complete_NAME_debug "Adding completion: ${compLine}"
             completions+=${compLine}
             lastComp=$compLine
         fi
     done < <(printf "%%s\n" "${compResult[@]}")
 
-    __NAME_debug "Calling _describe"
+    __clap_complete_NAME_debug "Calling _describe"
     if eval _describe "completions" completions; then
-        __NAME_debug "_describe found some completions"
+        __clap_complete_NAME_debug "_describe found some completions"
         # Return the success of having called _describe
         return 0
     else
-        __NAME_debug "_describe did not find completions."
-        __NAME_debug "Checking if we should do file completion."
+        __clap_complete_NAME_debug "_describe did not find completions."
+        __clap_complete_NAME_debug "Checking if we should do file completion."
         # TODO: Allow customizing behavior here
 
         # Perform file completion
-        __NAME_debug "Activating file completion"
+        __clap_complete_NAME_debug "Activating file completion"
 
         # We must return the result of this command, so it must be the
         # last command, or else we must store its result to return it.
