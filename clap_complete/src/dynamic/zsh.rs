@@ -14,7 +14,7 @@ pub fn register(
     completer: &str,
     buf: &mut dyn Write,
 ) -> Result<(), std::io::Error> {
-    let escaped_name = name.replace("-", "_");
+    let escaped_name = name.replace('-', "_");
     debug_assert!(
         escaped_name.chars().all(|c| c.is_xid_continue()),
         "`name` must be an identifier, got `{}`",

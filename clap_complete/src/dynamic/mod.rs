@@ -70,7 +70,7 @@ impl CompleteCommand {
 fn register(cmd: &mut clap::Command, args: &CompletionsArgs) -> clap::Result<()> {
     let mut buf = Vec::new();
     let name = cmd.get_name();
-    let bin = cmd.get_bin_name().unwrap_or(cmd.get_name());
+    let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
 
     match args.shell {
         CompletionsShell::Bash => {
@@ -86,7 +86,7 @@ fn register(cmd: &mut clap::Command, args: &CompletionsArgs) -> clap::Result<()>
     };
 
     if write_stdout {
-        std::io::stdout().write(&buf)?;
+        std::io::stdout().write_all(&buf)?;
         return Ok(())
     }
 

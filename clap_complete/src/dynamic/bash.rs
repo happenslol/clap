@@ -143,7 +143,7 @@ pub fn register(
     behavior: &Behavior,
     buf: &mut dyn Write,
 ) -> Result<(), std::io::Error> {
-    let escaped_name = name.replace("-", "_");
+    let escaped_name = name.replace('-', "_");
     debug_assert!(
         escaped_name.chars().all(|c| c.is_xid_continue()),
         "`name` must be an identifier, got `{}`",
@@ -238,7 +238,7 @@ pub fn complete(cmd: &mut clap::Command, args: &CompleteArgs) -> clap::Result<()
         }
         write!(&mut buf, "{}", completion.to_string_lossy())?;
     }
-    std::io::stdout().write(&buf)?;
+    std::io::stdout().write_all(&buf)?;
 
     Ok(())
 }
